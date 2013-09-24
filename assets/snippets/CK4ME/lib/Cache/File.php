@@ -75,18 +75,18 @@ class Cache_File extends Cache implements Cache_GarbageCollect {
 
 		try
 		{
-			$directory = Arr::get($this->_config, 'cache_dir', Kohana::$cache_dir);
-			$this->_cache_dir = new SplFileInfo($directory);
+            $directory = MODX_BASE_PATH . Arr::get($this->_config, 'cache_dir', null);
+            $this->_cache_dir = new SplFileInfo($directory);
 		}
 		// PHP < 5.3 exception handle
-		catch (ErrorException $e)
-		{
-			$this->_cache_dir = $this->_make_directory($directory, 0777, TRUE);
-		}
-		// PHP >= 5.3 exception handle
-		catch (UnexpectedValueException $e)
-		{
-			$this->_cache_dir = $this->_make_directory($directory, 0777, TRUE);
+        catch (ErrorException $e)
+        {
+            $this->_cache_dir = $this->_make_directory($directory, 0777, TRUE);
+        }
+        // PHP >= 5.3 exception handle
+        catch (UnexpectedValueException $e)
+        {
+            $this->_cache_dir = $this->_make_directory($directory, 0777, TRUE);
 		}
 
 		// If the defined directory is a file, get outta here
@@ -238,7 +238,9 @@ class Cache_File extends Cache implements Cache_GarbageCollect {
 		{
 			$data = $lifetime."\n".serialize($data);
 			$file->fwrite($data, strlen($data));
-			return (bool) $file->fflush();
+            $out = (bool) $file->fflush();
+            chmod($file->getRealPath(), 0777);
+			return $out;
 		}
 		catch (ErrorException $e)
 		{
@@ -324,7 +326,7 @@ class Cache_File extends Cache implements Cache_GarbageCollect {
 				try
 				{
 					// Handle ignore files
-					if (in_array($file->getFilename(), $this->config('ignore_on_delete')))
+					if (is_array($this->config('ignore_on_delete')) && in_array($file->getFilename(), $this->config('ignore_on_delete')))
 					{
 						$delete = FALSE;
 					}
@@ -344,9 +346,9 @@ class Cache_File extends Cache implements Cache_GarbageCollect {
 					}
 
 					// If the delete flag is set delete file
-					if ($delete === TRUE)
-						return unlink($file->getRealPath());
-					else
+					if ($delete === TRUE){
+                        return unlink($file->getRealPath());
+                    }else
 						return FALSE;
 				}
 				catch (ErrorException $e)
@@ -439,7 +441,8 @@ class Cache_File extends Cache implements Cache_GarbageCollect {
 	 */
 	protected function _resolve_directory($filename)
 	{
-		return $this->_cache_dir->getRealPath().DIRECTORY_SEPARATOR.$filename[0].$filename[1].DIRECTORY_SEPARATOR;
+		$out = $this->_cache_dir->getRealPath().DIRECTORY_SEPARATOR.$filename[0].$filename[1].DIRECTORY_SEPARATOR;
+        return $out;
 	}
 
 	/**

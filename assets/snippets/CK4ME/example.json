@@ -1,0 +1,5 @@
+{
+    "driver":"file",
+    "cache_dir":"/assets/cache/example/",
+    "lifetime" : "10"
+}

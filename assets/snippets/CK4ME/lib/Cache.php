@@ -123,7 +123,7 @@ abstract class Cache {
 		// Create a new cache type instance
 		$driver = ucfirst($config['driver']);
 		$cache_class = 'Cache_'.$driver;
-		include_once(MODX_BASE_PATH.'manager/includes/extenders/Cache/'.$driver.'.php');
+		include_once(dirname(__FILE__).'/Cache/'.$driver.'.php');
 		Cache::$instances[$group] = new $cache_class($config);
 
 		// Return the instance
@@ -289,7 +289,16 @@ abstract class Cache {
 }
 // End Kohana_Cache
 
-class Cache_Exception extends Exception {}
+class Cache_Exception extends Exception {
+    public function __construct($message, array $variables = NULL, $code = 0)
+    {
+        foreach($variables as $name=>$value){
+            $message = str_replace($name, $value, $message);
+        }
+        // Pass the message to the parent
+        parent::__construct($message, $code);
+    }
+}
 
 class Arr {
 	public static function get($config, $key, $default = NULL)

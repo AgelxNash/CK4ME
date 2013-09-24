@@ -12,20 +12,12 @@ if(!isset($modx->cache)){
 }
 
 $dir = MODX_BASE_PATH.'assets/snippets/CK4ME/';
-include_once($dir.'Cache.php');
+include_once($dir.'lib/Cache.php');
 
 $configName = isset($configName) ? explode(',', $configName) : array();
 foreach($configName as $value){
 	if(file_exists($dir.$value.'.json')){
-		$config = json_decode(file_get_contents($dir.$value.'.json'));
-		/*
-		$config = array(
-			'driver'             => 'sqlite',
-			'default_expire'     => 3600,
-			'database'           => MODX_BASE_PATH.'assets/cache/cache.sql3',
-			'schema'             => 'CREATE TABLE caches(id VARCHAR(127) PRIMARY KEY, tags VARCHAR(255), expiration INTEGER, cache TEXT)',
-		)
-		*/
+		$config = json_decode(file_get_contents($dir.$value.'.json'), true);
 	}else{
 		$config = array();
 	}
@@ -34,7 +26,7 @@ foreach($configName as $value){
 		$modx->cache[$value] = Cache::instance($config['driver'], $config);
 	}
 	
-	if(isset($modx->cache[$ck4me_config])){
-		$modx->cache[$ck4me_config]->delete_all();
+	if(isset($modx->cache[$value])){
+		$modx->cache[$value]->delete_all();
 	}
 }
